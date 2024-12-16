@@ -1,3 +1,5 @@
+import Navbar from "@/components/common/Navbar";
+import connectMongo from "@/services/connectMongo";
 import localFont from "next/font/local";
 import "./globals.css";
 
@@ -17,12 +19,14 @@ export const metadata = {
   description: "Where you find all movie in a place!",
 };
 
-export default function RootLayout({ children }) {
+export default async function RootLayout({ children }) {
+  await connectMongo();
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-black text-white`}
       >
+        <Navbar />
         {children}
       </body>
     </html>
