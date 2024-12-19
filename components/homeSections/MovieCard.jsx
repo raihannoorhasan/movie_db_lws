@@ -3,11 +3,11 @@ import Image from "next/image";
 import Link from "next/link";
 
 export default function MovieCard({ movie }) {
-  const { poster_path, title, release_date } = movie || {};
+  const { poster_path, title, release_date, id } = movie || {};
 
   return (
     <div className="flex-shrink-0 w-48 cursor-pointer hover:scale-105 transition-transform">
-      <Link href={`/`}>
+      <Link href={`/movie/${id}`}>
         <Image
           width={300}
           height={300}

@@ -1,4 +1,5 @@
 import Navbar from "@/components/common/Navbar";
+import AuthProvider from "@/provider/AuthProvider";
 import connectMongo from "@/services/connectMongo";
 import localFont from "next/font/local";
 import "./globals.css";
@@ -26,8 +27,10 @@ export default async function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-black text-white`}
       >
-        <Navbar />
-        {children}
+        <AuthProvider>
+          <Navbar />
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );

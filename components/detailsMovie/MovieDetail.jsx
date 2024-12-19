@@ -1,10 +1,11 @@
 import Image from "next/image";
+import Cast from "./Cast";
 import Genres from "./Genres";
 import SocialShare from "./SocialShare";
 import WatchList from "./WatchList";
 
 export default function MovieDetail({ movie }) {
-  const { title, backdrop_path, poster_path, overview, runtime, genres } =
+  const { title, backdrop_path, poster_path, overview, runtime, genres, id } =
     movie || {};
   return (
     <div id="movieDetails" className="min-h-screen pt-20 mb-8">
@@ -44,8 +45,8 @@ export default function MovieDetail({ movie }) {
               <p className="text-lg mb-6">{overview}</p>
 
               <Genres genres={genres} />
-              {/* <Cast /> */}
-              <WatchList />
+              <Cast movieId={id} />
+              <WatchList movie={movie} />
               <SocialShare />
             </div>
           </div>
