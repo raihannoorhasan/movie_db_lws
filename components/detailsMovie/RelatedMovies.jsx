@@ -18,8 +18,8 @@ export default async function RelatedMovies({ movieId }) {
         </div> */}
 
         {similarMovies
-          .filter((movie) => movie?.poster_path)
-          .map((movie) => (
+          ?.filter((movie) => movie?.poster_path)
+          ?.map((movie) => (
             // <div
             //   key={movie?.id}
             //   className="flex-shrink-0 w-48 cursor-pointer hover:scale-105 transition-transform"

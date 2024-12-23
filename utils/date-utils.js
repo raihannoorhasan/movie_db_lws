@@ -9,5 +9,5 @@ export const formatDate = (inputDate) => {
     month: "short",
     year: "numeric",
   });
-  return formatter.format(new Date(inputDate));
+  return formatter.format(new Date(inputDate || 0));
 };
