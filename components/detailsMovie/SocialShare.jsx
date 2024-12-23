@@ -145,12 +145,11 @@ export const SocialShare = ({ movie }) => {
   const shareTitle = encodeURIComponent(movie?.title);
   const shareText = encodeURIComponent(`Check out ${movie?.title} on MovieDB!`);
 
-  console.log(shareUrl);
-
   return (
     <div className="mb-6">
       <h3 className="text-gray-400 mb-2">Share on social media</h3>
       <div className="flex flex-wrap gap-4">
+        {/* facebooke */}
         <Link
           href={`https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`}
           target="_blank"
@@ -165,6 +164,40 @@ export const SocialShare = ({ movie }) => {
             className="w-8 h-8 rounded-full object-cover mb-2 mx-auto"
           />
           <p className="text-sm">Facebook</p>
+        </Link>
+
+        {/* twitter */}
+        <Link
+          href={`https://twitter.com/intent/tweet?url=${shareUrl}&text=${shareText}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-center cursor-pointer hover:opacity-80"
+        >
+          <Image
+            width={32}
+            height={32}
+            src="http://x.com/favicon.ico"
+            alt="Share on Twitter"
+            className="w-8 h-8 rounded-full object-cover mb-2 mx-auto"
+          />
+          <p className="text-sm">Twitter</p>
+        </Link>
+
+        {/* whatsapp */}
+        <Link
+          href={`https://www.linkedin.com/sharing/share-offsite/?url=$${shareUrl}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-center cursor-pointer hover:opacity-80"
+        >
+          <Image
+            width={32}
+            height={32}
+            src="http://linkedin.com/favicon.ico"
+            alt="Share on WhatsApp"
+            className="w-8 h-8 rounded-full object-cover mb-2 mx-auto"
+          />
+          <p className="text-sm">Linkedin</p>
         </Link>
       </div>
     </div>

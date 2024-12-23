@@ -6,9 +6,6 @@ import { parseWithZod } from "@conform-to/zod";
 import { useFormState } from "react-dom";
 
 export default function LoginForm({ searchParams }) {
-  // console.log(searchParams.redirect);
-
-  // const searchParams = useSearchParams();
   const redirectPath = searchParams.redirect || "/"; // Get redirect path or default to "/"
 
   const [lastResult, action] = useFormState(performLogin, undefined);

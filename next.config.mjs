@@ -15,6 +15,9 @@ const nextConfig = {
       {
         hostname: "linkedin.com",
       },
+      {
+        hostname: "web.whatsapp.com",
+      },
     ],
   },
 };
