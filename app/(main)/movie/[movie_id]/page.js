@@ -58,7 +58,7 @@ export default async function MovieDetailPage({ params }) {
   return (
     <>
       <MovieDetail movie={movie} />
-      <Suspense fallback={<Loader />}>
+      <Suspense fallback={<Loader text={"Loading related movies..."} />}>
         <RelatedMovies similarMoviesPromise={similarMoviesPromise} />
       </Suspense>
     </>
