@@ -1,8 +1,6 @@
-import Loader from "@/components/common/Loader";
 import MovieDetail from "@/components/detailsMovie/MovieDetail";
 import RelatedMovies from "@/components/detailsMovie/RelatedMovies";
 import { getMovieById } from "@/utils/data-utils";
-import { Suspense } from "react";
 
 // export async function generateMetadata({ params: { movie_id } }) {
 //   const movie = await getMovieById(movie_id);
@@ -49,9 +47,7 @@ export default async function MovieDetailPage({ params }) {
   return (
     <>
       <MovieDetail movie={movie} />
-      <Suspense fallback={<Loader text="Loading the related movies..." />}>
-        <RelatedMovies movieId={movie_id} />
-      </Suspense>
+      <RelatedMovies movieId={movie_id} />
     </>
   );
 }
