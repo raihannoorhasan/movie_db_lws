@@ -1,9 +1,9 @@
 import { getSimilarMovies } from "@/utils/data-utils";
-import Image from "next/image";
-import Link from "next/link";
+import RelatedCard from "./RelatedCard";
 
 export default async function RelatedMovies({ movieId }) {
   const similarMovies = await getSimilarMovies(movieId);
+
   return (
     <div className="container mx-auto px-4 py-8">
       <h2 className="text-2xl font-bold mb-4">More Like This</h2>
@@ -17,22 +17,27 @@ export default async function RelatedMovies({ movieId }) {
           </div>
         </div> */}
 
-        {similarMovies.map((movie) => (
-          <div
-            key={movie?.id}
-            className="flex-shrink-0 w-48 cursor-pointer hover:scale-105 transition-transform"
-          >
-            <Link href={`/movie/${movie?.id}`}>
-              <Image
-                width={1000}
-                height={1000}
-                src={`https://image.tmdb.org/t/p/original${movie?.poster_path}`}
-                alt="The Good German"
-                className="w-full rounded-lg"
-              />
-            </Link>
-          </div>
-        ))}
+        {similarMovies
+          .filter((movie) => movie?.poster_path)
+          .map((movie) => (
+            // <div
+            //   key={movie?.id}
+            //   className="flex-shrink-0 w-48 cursor-pointer hover:scale-105 transition-transform"
+            // >
+            //   <Link href={`/movie/${movie?.id}`}>
+            //     <Image
+            //       width={1000}
+            //       height={1000}
+            //       src={`https://image.tmdb.org/t/p/original${movie?.poster_path}`}
+            //       alt="The Good German"
+            //       className="w-full rounded-lg"
+            //       placeholder="empty"
+            //       loading="lazy"
+            //     />
+            //   </Link>
+            // </div>
+            <RelatedCard key={movie?.id} movie={movie} />
+          ))}
       </div>
     </div>
   );

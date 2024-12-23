@@ -21,6 +21,17 @@ module.exports = {
         "moviedb-black": "#221F1F",
         "moviedb-gray": "#353535",
       },
+      // animation: {
+      //   "spin-slow": "spin 4s linear infinite",
+      //   pulse: "pulse 1.5s infinite",
+      // },
+      animation: {
+        "spin-fast": "spin 1s linear infinite",
+        pulse: "pulse 2s infinite",
+      },
+      blur: {
+        "3xl": "50px",
+      },
     },
   },
   plugins: [],

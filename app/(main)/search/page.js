@@ -5,7 +5,7 @@ import Link from "next/link";
 export default async function SearchPage({ searchParams }) {
   const searchResults = await getMoviesByQuery(searchParams?.query || "");
 
-  console.log(searchResults?.length);
+  // console.log(searchResults?.length);
 
   return (
     <main className="container mx-auto px-4 pt-24 pb-8">

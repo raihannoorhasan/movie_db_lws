@@ -183,7 +183,7 @@ export const SocialShare = ({ movie }) => {
           <p className="text-sm">Twitter</p>
         </Link>
 
-        {/* whatsapp */}
+        {/* linkedin */}
         <Link
           href={`https://www.linkedin.com/sharing/share-offsite/?url=$${shareUrl}`}
           target="_blank"
