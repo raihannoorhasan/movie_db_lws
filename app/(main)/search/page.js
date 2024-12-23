@@ -21,15 +21,17 @@ export default async function SearchPage({ searchParams }) {
 
       <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-6">
         {searchResults?.length > 0 ? (
-          searchResults.map((movie) => (
-            <Link
-              key={movie?.id}
-              href={`/movie/${movie?.id}`}
-              className="bg-zinc-900 rounded-lg overflow-hidden hover:scale-105 transition-transform"
-            >
-              <SearchCard movie={movie} />
-            </Link>
-          ))
+          searchResults
+            ?.filter((r) => r.poster_path)
+            ?.map((movie) => (
+              <Link
+                key={movie?.id}
+                href={`/movie/${movie?.id}`}
+                className="bg-zinc-900 rounded-lg overflow-hidden hover:scale-105 transition-transform"
+              >
+                <SearchCard movie={movie} />
+              </Link>
+            ))
         ) : (
           <div>UFFFS!!! No, Movies found with this query</div>
         )}
