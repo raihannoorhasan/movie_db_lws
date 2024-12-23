@@ -1,8 +1,20 @@
 import { removeSlot } from "@/actions/slot";
+import { getMovieById } from "@/utils/data-utils";
+import { getYearByDate } from "@/utils/date-utils";
 import Image from "next/image";
 
-export default function FilledSlot({ movie, slotId }) {
-  const { poster_path, title, vote_average } = movie || {};
+export default async function FilledSlot({ movieId, slotId }) {
+  const movie = await getMovieById(movieId);
+  const {
+    poster_path,
+    title,
+    vote_average,
+    release_date,
+    runtime,
+    genres,
+    budget,
+    revenue,
+  } = movie || {};
 
   return (
     <div className="bg-zinc-900 rounded-lg p-4 flex flex-col">
@@ -30,35 +42,37 @@ export default function FilledSlot({ movie, slotId }) {
           </div>
           <div className="bg-zinc-800 p-3 rounded">
             <span className="text-gray-400">Release Year:</span>
-            <span className="float-right">2016</span>
+            <span className="float-right">{getYearByDate(release_date)}</span>
           </div>
           <div className="bg-zinc-800 p-3 rounded">
             <span className="text-gray-400">Runtime:</span>
-            <span className="float-right">134 min</span>
+            <span className="float-right">{runtime} min</span>
           </div>
           <div className="bg-zinc-800 p-3 rounded">
             <span className="text-gray-400">Budget:</span>
-            <span className="float-right">$40.0M</span>
+            <span className="float-right">${budget}</span>
           </div>
           <div className="bg-zinc-800 p-3 rounded">
             <span className="text-gray-400">Revenue:</span>
-            <span className="float-right">$37.4M</span>
+            <span className="float-right">${revenue}</span>
           </div>
           <div className="bg-zinc-800 p-3 rounded">
             <span className="text-gray-400">Genres:</span>
             <div className="mt-2 flex flex-wrap gap-2">
-              <span className="bg-zinc-700 px-2 py-1 rounded-full text-sm">
-                Drama{" "}
-              </span>
-              <span className="bg-zinc-700 px-2 py-1 rounded-full text-sm">
-                History{" "}
-              </span>
-              <span className="bg-zinc-700 px-2 py-1 rounded-full text-sm">
-                Crime{" "}
-              </span>
-              <span className="bg-zinc-700 px-2 py-1 rounded-full text-sm">
-                Thriller
-              </span>
+              {genres?.length ? (
+                genres.map((gen) => (
+                  <span
+                    className="bg-zinc-700 px-2 py-1 rounded-full text-sm"
+                    key={gen?.id}
+                  >
+                    {gen?.name}{" "}
+                  </span>
+                ))
+              ) : (
+                <span className="bg-zinc-700 px-2 py-1 rounded-full text-sm">
+                  No genres found{" "}
+                </span>
+              )}
             </div>
           </div>
         </div>

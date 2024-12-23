@@ -1,20 +1,24 @@
 import { getMoviesByQuery } from "@/utils/data-utils";
 import { revalidateTag } from "next/cache";
+import { redirect } from "next/navigation";
 import SearchCard from "./SearchCard";
 
 let modalData = [];
+
 export default function SearchModal({ searchParams }) {
-  // console.log(searchParams);
+  const closeModal = async () => {
+    "use server";
+    redirect(`/compare`);
+  };
 
   const serverAction = async (formData) => {
     "use server";
     const value = formData.get("searchValue");
-    if (!value.trim()) return; // Avoid redirecting if input is empty
+    if (!value.trim()) return;
     try {
       const res = await getMoviesByQuery(value);
       modalData = res;
       revalidateTag("modalData");
-      // console.log(modalData);
     } catch (error) {
       console.log(error);
     }
@@ -24,7 +28,11 @@ export default function SearchModal({ searchParams }) {
       <div className="bg-zinc-900 p-6 rounded-lg w-full max-w-2xl">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold">Search Movie</h2>
-          <button className="text-gray-400 hover:text-white">✕</button>
+          <form action={closeModal}>
+            <button type="submit" className="text-gray-400 hover:text-white">
+              ✕
+            </button>
+          </form>
         </div>
 
         <form action={serverAction}>
