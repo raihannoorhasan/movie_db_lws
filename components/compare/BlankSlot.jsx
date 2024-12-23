@@ -2,7 +2,7 @@ import { removeSlot } from "@/actions/slot";
 import { redirect } from "next/navigation";
 
 export default function BlankSlot({ slotId }) {
-  const openAction = async () => {
+  const demoaction = async () => {
     "use server";
     redirect(`/compare?search=true&slot=${slotId}`);
   };
@@ -17,7 +17,7 @@ export default function BlankSlot({ slotId }) {
       </form>
 
       <div className="flex-grow flex flex-col items-center justify-center">
-        <form action={openAction}>
+        <form action={demoaction}>
           <button className="bg-zinc-800 text-white px-6 py-3 rounded hover:bg-zinc-700 transition-colors cursor-pointer">
             Select Movie
           </button>

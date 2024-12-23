@@ -148,27 +148,3 @@ export async function updateSlot(formData) {
   }
   revalidateTag("slots");
 }
-
-let modalData = [];
-
-// Fetch modal data
-export async function fetchModalData() {
-  return [...modalData]; // Return a copy to ensure immutability
-}
-
-export async function searchMovies(formData) {
-  const value = formData.get("searchValue");
-  if (!value.trim()) return;
-  try {
-    const res = await getMoviesByQuery(value); // Your API logic
-    modalData = res;
-    revalidateTag("modalData");
-  } catch (error) {
-    console.error("Error fetching movies:", error);
-  }
-}
-
-export async function closeSearchModal() {
-  modalData = [];
-  revalidateTag("modalData");
-}

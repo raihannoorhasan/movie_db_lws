@@ -16,6 +16,8 @@ export default async function FilledSlot({ movieId, slotId }) {
     revenue,
   } = movie || {};
 
+  // console.log(movie);
+
   return (
     <div className="bg-zinc-900 rounded-lg p-4 flex flex-col">
       <div className="flex justify-end mb-4">
