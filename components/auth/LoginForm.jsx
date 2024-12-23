@@ -3,12 +3,14 @@ import { performLogin } from "@/actions";
 import { loginSchema } from "@/validation_schema/loginSchema";
 import { useForm } from "@conform-to/react";
 import { parseWithZod } from "@conform-to/zod";
-import { useSearchParams } from "next/navigation";
 import { useFormState } from "react-dom";
 
-export default function LoginForm() {
-  const searchParams = useSearchParams();
-  const redirectPath = searchParams.get("redirect") || "/"; // Get redirect path or default to "/"
+export default function LoginForm({ searchParams }) {
+  // console.log(searchParams.redirect);
+
+  // const searchParams = useSearchParams();
+  const redirectPath = searchParams.redirect || "/"; // Get redirect path or default to "/"
+
   const [lastResult, action] = useFormState(performLogin, undefined);
   const [form, fields] = useForm({
     lastResult,
@@ -55,7 +57,7 @@ export default function LoginForm() {
         )}
       </div>
 
-      <input type="text" name="path" value={redirectPath} hidden />
+      <input type="text" name="path" value={"/"} hidden readOnly />
 
       {lastResult?.status === "error" && lastResult?.message && (
         <p className="text-red-600 text-start">{lastResult.message}</p>
