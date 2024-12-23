@@ -70,10 +70,7 @@ import PageHeader from "@/components/compare/PageHeader";
 
 export default async function ComparePage() {
   const slots = await fetchSlots();
-
-  // console.log(slots);
-
-  // console.log(slots);
+  console.log(slots);
 
   return (
     <main className="container mx-auto px-4 pt-24 pb-8">
