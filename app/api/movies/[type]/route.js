@@ -3,13 +3,21 @@ import { NextResponse } from "next/server";
 export async function GET(req, { params }) {
   const { type } = params;
 
+  let URL = `${process.env.TMDB_API_BASE_URL}/${type}`;
+
+  if (type === "trending") {
+    URL = "https://api.themoviedb.org/3/trending/movie/week";
+  }
+
+  const options = {
+    headers: {
+      Authorization: `Bearer ${process.env.AUTH_TOKEN}`,
+      "Content-Type": "application/json",
+    },
+  };
+
   try {
-    const response = await fetch(`${process.env.TMDB_API_BASE_URL}/${type}`, {
-      headers: {
-        Authorization: `Bearer ${process.env.AUTH_TOKEN}`,
-        "Content-Type": "application/json",
-      },
-    });
+    const response = await fetch(URL, options);
 
     if (!response.ok) {
       return NextResponse.json(

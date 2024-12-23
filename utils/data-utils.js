@@ -74,7 +74,9 @@ export const getCastByMovieId = async (movieId) => {
 
 export const getRandomMovie = async (movieId) => {
   try {
-    const response = await fetch(`${process.env.API_BASE_URL}/random`);
+    const response = await fetch(`${process.env.API_BASE_URL}/random`, {
+      cache: "no-store",
+    });
     if (!response.ok) {
       throw new Error(`Failed to fetch random movie`);
       return;

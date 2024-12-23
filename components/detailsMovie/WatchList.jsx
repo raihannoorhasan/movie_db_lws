@@ -1,79 +1,42 @@
-// "use client";
+// // "use client";
 
-import { addToWatchlist, authenticateUser, checkWatchList } from "@/actions"; // Import server actions
-import { redirect } from "next/navigation";
-import {
-  DefaultWatchListIcon,
-  SuccessWatchListIcon,
-} from "../svg/WatchListIcon";
+// import { addToWatchlist, authenticateUser, checkWatchList } from "@/actions";
+// import {
+//   DefaultWatchListIcon,
+//   SuccessWatchListIcon,
+// } from "../svg/WatchListIcon";
+// import RedirectToLogin from "./RedirectLogin";
 
-// export default function WatchList({ movie }) {
-//   const [movieInWatchList, setMovieInWatchList] = useState(false); // State to track if the movie is in the watchlist
-//   const { auth } = useAuth(); // User authenticatione
-//   const router = useRouter();
+// export default async function WatchList({ movie }) {
+//   // Authenticate the user
+//   const user = await authenticateUser();
 
-//   // // Check if the movie is already in the watchlist
-//   // useEffect(() => {
-//   //   if (!auth?.id || !movie?.id) return;
+//   // Redirect to login if the user is not authenticated
 
-//   //   const checkMovieInWatchlist = async () => {
-//   //     try {
-//   //       const movieExists = await isMovieInWatchList(auth.id, movie.id);
-//   //       if (movieExists) {
-//   //         setMovieInWatchList(true);
-//   //       }
-//   //     } catch (error) {
-//   //       console.error("Error checking movie in watchlist:", error);
-//   //     }
-//   //   };
+//   // Check if the movie is already in the watchlist
+//   const isAlreadyInWatchlist =
+//     user && (await checkWatchList(user?.id, movie?.id));
 
-//   //   checkMovieInWatchlist();
-//   // }, [auth?.id, movie?.id]);
+//   // Define server action for adding to the watchlist
+//   const handleAddToWatchlist = async () => {
+//     "use server"; // Mark this as a server action
 
-//   useEffect(() => {
-//     if (!auth?.id) return;
+//     if (!user?.id) {
+//       // return redirect("/login");
+//       console.log("redirecting...");
 
-//     console.log("Auth ID:", auth?.id, "Movie ID:", movie?.id);
-
-//     const checkMovieInWatchlist = async () => {
-//       try {
-//         console.log("Checking movie in watchlist...");
-//         const movieExists = await checkWatchList(auth.id, movie.id);
-//         console.log("Movie exists:", movieExists);
-
-//         if (movieExists) {
-//           setMovieInWatchList(true);
-//         }
-//       } catch (error) {
-//         console.error("Error checking watchlist:", error);
-//       }
-//     };
-
-//     checkMovieInWatchlist();
-//   }, [auth?.id, movie?.id]);
-
-//   // Button click handler to add a movie to the watchlist
-//   const buttonHandler = async () => {
-//     if (!auth?.id) {
-//       router.push("/login");
-//       return;
+//       return <RedirectToLogin />;
 //     }
 
-//     if (movieInWatchList) {
-//       console.log("Movie is already in the watchlist!");
+//     if (isAlreadyInWatchlist) {
 //       return;
 //     }
 
 //     try {
-//       // const addedMovieData = await addToWatchlist(auth.id, movie);
-//       const user = await authenticateUser();
-//       if (user?.id) {
-//         const addedMovieData = await addToWatchlist(user?.id, movie);
-//         console.log("Movie added:", addedMovieData);
-//       }
-//       setMovieInWatchList(true); // Update state after successfully adding the movie
-//     } catch (err) {
-//       console.error("Error adding movie to watchlist:", err.message);
+//       await addToWatchlist(user.id, movie);
+//       console.log("Movie added successfully!");
+//     } catch (error) {
+//       console.error("Error adding movie to watchlist:", error.message);
 //     }
 //   };
 
@@ -81,86 +44,202 @@ import {
 //     <div className="mb-6">
 //       <div className="flex flex-wrap gap-4">
 //         <div className="text-center">
-//           <button
-//             onClick={buttonHandler}
-//             className={`flex items-center gap-2 bg-black/40 px-4 py-2 rounded-lg ${
-//               movieInWatchList && "text-green-600"
-//             }`}
-//           >
-//             {!movieInWatchList ? (
-//               <DefaultWatchListIcon />
-//             ) : (
-//               <SuccessWatchListIcon />
-//             )}
-//             {!movieInWatchList
-//               ? "Add to Watch List"
-//               : "Already added in Watch List"}
-//           </button>
+//           <form action={handleAddToWatchlist}>
+//             <button
+//               type="submit"
+//               className={`flex items-center gap-2 bg-black/40 px-4 py-2 rounded-lg ${
+//                 isAlreadyInWatchlist && "text-green-600"
+//               }`}
+//             >
+//               {!isAlreadyInWatchlist ? (
+//                 <DefaultWatchListIcon />
+//               ) : (
+//                 <SuccessWatchListIcon />
+//               )}
+//               {!isAlreadyInWatchlist
+//                 ? "Add to Watch List"
+//                 : "Already in Watch List"}
+//             </button>
+//           </form>
 //         </div>
 //       </div>
 //     </div>
 //   );
 // }
 
-// import { authenticateUser, addToWatchlist, checkWatchList } from "@/actions";
-// import { redirect } from "next/navigation";
+// "use client";
+
+// import { addToWatchlist, authenticateUser, checkWatchList } from "@/actions";
+// import { useRouter } from "next/navigation";
+// import { useEffect, useState } from "react";
 // import {
 //   DefaultWatchListIcon,
 //   SuccessWatchListIcon,
 // } from "../svg/WatchListIcon";
 
-export default async function WatchList({ movie }) {
-  // Authenticate the user
-  const user = await authenticateUser();
+// export default function WatchList({ movie }) {
+//   const [isUser, setIsUser] = useState(null);
+//   const [isAlreadyInWatchlist, setIsAlreadyInWatchList] = useState(false);
 
-  // Redirect to login if the user is not authenticated
+//   const router = useRouter();
 
-  // Check if the movie is already in the watchlist
-  const isAlreadyInWatchlist =
-    user && (await checkWatchList(user?.id, movie?.id));
+//   useEffect(() => {
+//     const check = async () => {
+//       const user = await authenticateUser();
+//       const isAvailable = await checkWatchList(user?.id, movie?.id);
+//       setIsUser(user);
+//       setIsAlreadyInWatchList(isAvailable);
+//     };
+//     check();
+//   }, [movie?.id, isUser?.id]);
 
-  // Define server action for adding to the watchlist
-  const handleAddToWatchlist = async () => {
-    "use server"; // Mark this as a server action
+//   // Authenticate the user
 
-    if (!user?.id) {
-      redirect("/login");
+//   // Redirect to login if the user is not authenticated
+
+//   // // Check if the movie is already in the watchlist
+//   // const isAlreadyInWatchlist =
+//   //   user && (await checkWatchList(user?.id, movie?.id));
+
+//   // Define server action for adding to the watchlist
+//   const handleAddToWatchlist = async () => {
+//     if (!isUser?.id) {
+//       router.push(`/login?redirect=/movie/${movie?.id}`);
+//       return;
+//     }
+
+//     if (isAlreadyInWatchlist) {
+//       return;
+//     }
+
+//     try {
+//       await addToWatchlist(isUser.id, movie);
+//       console.log("Movie added successfully!");
+//     } catch (error) {
+//       console.error("Error adding movie to watchlist:", error.message);
+//     }
+//   };
+
+//   return (
+//     <div className="mb-6">
+//       <div className="flex flex-wrap gap-4">
+//         <div className="text-center">
+//           <form action={handleAddToWatchlist}>
+//             <button
+//               type="submit"
+//               className={`flex items-center gap-2 bg-black/40 px-4 py-2 rounded-lg ${
+//                 isAlreadyInWatchlist && "text-green-600"
+//               }`}
+//             >
+//               {!isAlreadyInWatchlist ? (
+//                 <DefaultWatchListIcon />
+//               ) : (
+//                 <SuccessWatchListIcon />
+//               )}
+//               {!isAlreadyInWatchlist
+//                 ? "Add to Watch List"
+//                 : "Already in Watch List"}
+//             </button>
+//           </form>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }
+
+"use client";
+
+import { addToWatchlist, authenticateUser, checkWatchList } from "@/actions";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import {
+  DefaultWatchListIcon,
+  SuccessWatchListIcon,
+} from "../svg/WatchListIcon";
+
+export default function WatchList({ movie }) {
+  const [isUser, setIsUser] = useState(null); // Tracks authenticated user
+  const [isAlreadyInWatchlist, setIsAlreadyInWatchList] = useState(false); // Tracks if the movie is in the watchlist
+  const [loading, setLoading] = useState(false); // Loading state for adding movie
+  const router = useRouter();
+  const pathname = usePathname();
+
+  // Check authentication and watchlist status
+  const checkAuthAndWatchlist = async () => {
+    try {
+      const user = await authenticateUser();
+      if (!user) {
+        setIsUser(null);
+        setIsAlreadyInWatchList(false);
+      } else {
+        const isAvailable = await checkWatchList(user.id, movie?.id);
+        setIsUser(user);
+        setIsAlreadyInWatchList(isAvailable);
+      }
+    } catch (error) {
+      console.error("Error checking authentication or watchlist:", error);
     }
+  };
 
-    if (isAlreadyInWatchlist) {
-      console.log("Movie is already in the watchlist!");
+  // Run on initial load, after movie changes, or after redirection from login
+  useEffect(() => {
+    checkAuthAndWatchlist();
+  }, [movie?.id]); // Include redirect parameter to trigger recheck
+
+  const handleAddToWatchlist = async () => {
+    if (!isUser) {
+      // Redirect to login if not authenticated
+      router.push(`/login?redirect=${pathname}`);
       return;
     }
 
+    if (isAlreadyInWatchlist) return; // Prevent duplicate additions
+
+    setLoading(true);
     try {
-      await addToWatchlist(user.id, movie);
-      console.log("Movie added successfully!");
+      await addToWatchlist(isUser.id, movie);
+      setIsAlreadyInWatchList(true); // Update watchlist state
     } catch (error) {
-      console.error("Error adding movie to watchlist:", error.message);
+      console.error("Error adding to watchlist:", error);
+    } finally {
+      setLoading(false);
     }
   };
+
+  // if (checking) {
+  //   // Show loader while fetching authentication or watchlist status
+  //   return (
+  //     <div className="mb-6">
+  //       <p>Loading watchlist status...</p>
+  //     </div>
+  //   );
+  // }
 
   return (
     <div className="mb-6">
       <div className="flex flex-wrap gap-4">
         <div className="text-center">
-          <form action={handleAddToWatchlist}>
-            <button
-              type="submit"
-              className={`flex items-center gap-2 bg-black/40 px-4 py-2 rounded-lg ${
-                isAlreadyInWatchlist && "text-green-600"
-              }`}
-            >
-              {!isAlreadyInWatchlist ? (
-                <DefaultWatchListIcon />
-              ) : (
+          <button
+            onClick={handleAddToWatchlist}
+            disabled={loading}
+            className={`flex items-center gap-2 bg-black/40 px-4 py-2 rounded-lg ${
+              isAlreadyInWatchlist ? "text-green-600" : ""
+            }`}
+          >
+            {loading ? (
+              <span className="loader-spinner">Adding...</span>
+            ) : isAlreadyInWatchlist ? (
+              <>
                 <SuccessWatchListIcon />
-              )}
-              {!isAlreadyInWatchlist
-                ? "Add to Watch List"
-                : "Already in Watch List"}
-            </button>
-          </form>
+                Already in Watch List
+              </>
+            ) : (
+              <>
+                <DefaultWatchListIcon />
+                Add to Watch List
+              </>
+            )}
+          </button>
         </div>
       </div>
     </div>

@@ -12,35 +12,121 @@ const {
   isMovieInWatchList,
 } = require("@/services/queries");
 
-export const registerUser = async (formData) => {
-  const user = {};
-  user.firstName = formData.get("firstName");
-  user.lastName = formData.get("lastName");
-  user.email = formData.get("email");
-  user.password = formData.get("password");
+import { loginSchema } from "@/validation_schema/loginSchema";
+import { registerSchema } from "@/validation_schema/registrationSchema";
+import { parseWithZod } from "@conform-to/zod";
+import { redirect } from "next/navigation";
 
-  const created = await createUser(user);
+// authentication
 
-  console.log(created);
+export const registerUser = async (prevState, formData) => {
+  const submission = parseWithZod(formData, {
+    schema: registerSchema,
+  });
+  if (submission.status !== "success") {
+    return submission.reply();
+  }
+  try {
+    await createUser(submission.value);
+  } catch (error) {
+    console.log(error);
+  }
+  return redirect("/login");
+};
 
+const SECRET_KEY = process.env.JWT_SECRET_KEY || "your-secret-key";
+
+export const setAuthCookie = (user, cookieStore) => {
+  // const jwtToken = generateJwtToken(user); // Assuming this is your method to generate the token
+  const jwtToken = jwt.sign(
+    { id: user.id, email: user.email, name: user.firstName },
+    SECRET_KEY,
+    {
+      expiresIn: "1h", // Set token expiry time (e.g., 1 hour)
+    }
+  );
+  const cookie = serialize("auth_token", jwtToken, {
+    path: "/",
+    httpOnly: true, // Makes the cookie inaccessible via JavaScript (for security)
+    secure: process.env.NODE_ENV === "production", // Secure cookie on production (HTTPS)
+    maxAge: 60 * 60 * 24 * 7, // 1 week
+  });
+
+  // Now set the cookie in the server response (cookieStore is passed in the server action)
+  cookieStore.set("auth_token", cookie);
+};
+
+export const performLogin = async (prevState, credentials) => {
+  const submission = parseWithZod(credentials, {
+    schema: loginSchema,
+  });
+  if (submission.status !== "success") {
+    return submission.reply();
+  }
+
+  console.log("submission value");
+  console.log(submission.value);
+
+  try {
+    const user = await findUserByCredentials(submission.value);
+    if (!user) {
+      return { status: "error", message: "Invalid credentials" };
+    }
+
+    // Set the JWT token in the cookie after successful login
+    const cookieStore = cookies(); // Access cookies object on the server side
+    setAuthCookie(user, cookieStore); // Use a helper function to set the cookie
+
+    // return user; // Return user data or other necessary info
+  } catch (error) {
+    return { status: "error", message: error.message };
+  }
+  redirect(submission.value.path);
+};
+
+export const authenticateUser = () => {
+  // Get cookies from the request
+  // const cookies = cookies();
+
+  // Extract the cookie string value for auth_token
+  const cookieValue = cookies().get("auth_token")?.value;
+  // console.log(cookieValue);
+
+  // Check if the token exists and is a valid string
+  if (!cookieValue || typeof cookieValue !== "string") {
+    // redirect("/login");
+    return false;
+    // throw new Error("Authentication token is missing or invalid");
+  }
+
+  // Now parse the cookie value to get the actual token (remove 'auth_token=' prefix)
+  const token = cookieValue.split(";")[0].replace("auth_token=", "").trim(); // This will give you the token after the '='
+
+  try {
+    // Verify and decode the token
+    const decoded = jwt.verify(token, SECRET_KEY);
+    return decoded; // Returns decoded user information
+  } catch (error) {
+    console.error(error);
+    // throw new Error("Invalid or expired token");
+  }
+};
+
+export const performLogout = () => {
+  const cookieStore = cookies(); // Access cookies object on the server side
+
+  // Clear the auth_token cookie
+  cookieStore.set("auth_token", "", {
+    path: "/",
+    expires: new Date(0), // Set expiration to a past date to clear the cookie
+    httpOnly: true, // Secure the cookie
+  });
+
+  // Redirect the user to the login page or another appropriate location
   // redirect("/login");
 };
 
-// export const performLogin = async (credential) => {
-//   try {
-//     // const credential = {};
-//     // credential.email = formData.get("email");
-//     // credential.password = formData.get("password");
-//     const found = await findUserByCredentials(credential);
-//     if (found) {
-//       return found;
-//     } else {
-//       throw new Error("User with this credential is not found!");
-//     }
-//   } catch (error) {
-//     throw error;
-//   }
-// };
+// watchlist
 
 export const addToWatchlist = async (userId, movie) => {
   try {
@@ -80,140 +166,9 @@ export const removeFromWatchlist = async (userId, movieId) => {
 export const checkWatchList = async (userId, movieId) => {
   if (userId) {
     const isAvailable = await isMovieInWatchList(userId, movieId);
-    console.log(isAvailable);
+    // console.log(isAvailable);
     return isAvailable ? true : false;
   }
 
   return false;
 };
-
-// // new feature is implementing...
-
-const SECRET_KEY = process.env.JWT_SECRET_KEY || "your-secret-key";
-
-// Helper function to set the JWT token in the cookies
-// const setAuthCookie = (user, res) => {
-//   const token = jwt.sign({ id: user.id, email: user.email }, SECRET_KEY, {
-//     expiresIn: "1h", // Set token expiry time (e.g., 1 hour)
-//   });
-
-//   // Set the token in the response header as HttpOnly cookie
-//   res.setHeader(
-//     "Set-Cookie",
-//     cookie.serialize("auth_token", token, {
-//       httpOnly: true, // Prevent JavaScript access
-//       secure: process.env.NODE_ENV === "production", // Use secure cookies in production
-//       sameSite: "Strict", // Prevent CSRF
-//       maxAge: 3600, // 1 hour expiration
-//       path: "/",
-//     })
-//   );
-// };
-
-export const setAuthCookie = (user, cookieStore) => {
-  // const jwtToken = generateJwtToken(user); // Assuming this is your method to generate the token
-  const jwtToken = jwt.sign({ id: user.id, email: user.email }, SECRET_KEY, {
-    expiresIn: "1h", // Set token expiry time (e.g., 1 hour)
-  });
-  const cookie = serialize("auth_token", jwtToken, {
-    path: "/",
-    httpOnly: true, // Makes the cookie inaccessible via JavaScript (for security)
-    secure: process.env.NODE_ENV === "production", // Secure cookie on production (HTTPS)
-    maxAge: 60 * 60 * 24 * 7, // 1 week
-  });
-
-  // Now set the cookie in the server response (cookieStore is passed in the server action)
-  cookieStore.set("auth_token", cookie);
-};
-
-// export const performLogin = async (credentials, res) => {
-//   try {
-//     const user = await findUserByCredentials(credentials);
-//     if (!user) {
-//       throw new Error("Invalid credentials");
-//     }
-
-//     // Set the JWT token in the cookie after successful login
-//     setAuthCookie(user, res);
-
-//     return user; // Return user details or other necessary data
-//   } catch (error) {
-//     throw new Error(error.message);
-//   }
-// };
-
-export const performLogin = async (credentials) => {
-  try {
-    const user = await findUserByCredentials(credentials);
-    if (!user) {
-      throw new Error("Invalid credentials");
-    }
-
-    // Set the JWT token in the cookie after successful login
-    const cookieStore = cookies(); // Access cookies object on the server side
-    setAuthCookie(user, cookieStore); // Use a helper function to set the cookie
-
-    return user; // Return user data or other necessary info
-  } catch (error) {
-    // throw new Error(error.message);
-    console.log(error);
-  }
-};
-
-// export const authenticateUser = (req) => {
-//   // const cookies = cookies();
-//   const token = cookies().get("auth_token");
-
-//   console.log(token);
-
-//   if (!token) {
-//     throw new Error("Authentication token is missing");
-//   }
-
-//   try {
-//     const decoded = jwt.verify(token, SECRET_KEY);
-//     return decoded; // Returns decoded user information
-//   } catch (error) {
-//     // throw new Error("Invalid or expired token");
-//     console.log(error);
-//   }
-// };
-
-// Example usage in a server action
-
-export const authenticateUser = () => {
-  // Get cookies from the request
-  // const cookies = cookies();
-
-  // Extract the cookie string value for auth_token
-  const cookieValue = cookies().get("auth_token")?.value;
-  // console.log(cookieValue);
-
-  // Check if the token exists and is a valid string
-  if (!cookieValue || typeof cookieValue !== "string") {
-    // redirect("/login");
-    return false;
-    // throw new Error("Authentication token is missing or invalid");
-  }
-
-  // Now parse the cookie value to get the actual token (remove 'auth_token=' prefix)
-  const token = cookieValue.split(";")[0].replace("auth_token=", "").trim(); // This will give you the token after the '='
-
-  try {
-    // Verify and decode the token
-    const decoded = jwt.verify(token, SECRET_KEY);
-    return decoded; // Returns decoded user information
-  } catch (error) {
-    console.error(error);
-    // throw new Error("Invalid or expired token");
-  }
-};
-
-// export const getUserData = async (req) => {
-//   try {
-//     const user = authenticateUser(req);
-//     return user; // Return user data
-//   } catch (error) {
-//     throw new Error("User authentication failed");
-//   }
-// };

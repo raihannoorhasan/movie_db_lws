@@ -8,7 +8,11 @@ export const createUser = async (user) => {
   return await UserModel.create(user);
 };
 
-export const findUserByCredentials = async (credentials) => {
+export const findUserByCredentials = async (formData) => {
+  const credentials = {};
+  credentials.email = formData.email;
+  credentials.password = formData.password;
+
   await connectMongo();
   const user = await UserModel.findOne(credentials).lean();
   if (user) {

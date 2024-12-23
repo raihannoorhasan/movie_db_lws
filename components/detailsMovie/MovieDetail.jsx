@@ -1,12 +1,21 @@
+import { formatDate } from "@/utils/date-utils";
 import Image from "next/image";
 import Cast from "./Cast";
 import Genres from "./Genres";
-import SocialShare from "./SocialShare";
+import { SocialShare } from "./SocialShare";
 import WatchList from "./WatchList";
 
 export default function MovieDetail({ movie }) {
-  const { title, backdrop_path, poster_path, overview, runtime, genres, id } =
-    movie || {};
+  const {
+    title,
+    backdrop_path,
+    poster_path,
+    overview,
+    runtime,
+    genres,
+    id,
+    release_date,
+  } = movie || {};
   return (
     <div id="movieDetails" className="min-h-screen pt-20 mb-8">
       <div className="relative h-screen">
@@ -37,7 +46,10 @@ export default function MovieDetail({ movie }) {
               <h1 className="text-4xl font-bold mb-4">{title}</h1>
 
               <div className="flex items-center mb-4 space-x-4">
-                <span className="text-green-500"> 24 November 2024 </span>
+                <span className="text-green-500">
+                  {" "}
+                  {formatDate(release_date)}{" "}
+                </span>
                 <span>| </span>
                 <span>{runtime} min</span>
               </div>
@@ -47,7 +59,7 @@ export default function MovieDetail({ movie }) {
               <Genres genres={genres} />
               <Cast movieId={id} />
               <WatchList movie={movie} />
-              <SocialShare />
+              <SocialShare movie={movie} />
             </div>
           </div>
         </div>

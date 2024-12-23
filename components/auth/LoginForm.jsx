@@ -1,162 +1,44 @@
-// "use client";
-// import { performLogin } from "@/actions";
-// import useAuth from "@/hooks/useAuth";
-// import { useState } from "react";
-// import { useForm } from "react-hook-form";
-
-// export default function LoginForm() {
-//   const {
-//     register,
-//     handleSubmit,
-//     formState: { errors },
-//   } = useForm();
-//   const [loading, setLoading] = useState(false);
-//   const { setAuth } = useAuth();
-
-//   const submitHandler = async (formData) => {
-//     console.log(formData);
-//     setLoading(true);
-//     try {
-//       const foundUser = await performLogin(formData);
-//       foundUser && setAuth(foundUser);
-//     } catch (error) {
-//       console.log(error.message);
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   return (
-//     <form
-//       id="loginForm"
-//       className="space-y-4"
-//       onSubmit={handleSubmit(submitHandler)}
-//     >
-//       <div>
-//         <input
-//           type="email"
-//           placeholder="Email or phone number"
-//           className="w-full p-3 bg-moviedb-gray text-white rounded focus:outline-none focus:ring-2 focus:ring-moviedb-red"
-//           {...register("email", {
-//             required: "Email is required!",
-//           })}
-//           disabled={loading}
-//         />
-//         {errors.password && (
-//           <p className="text-red-600 text-start">{errors.password.message}</p>
-//         )}
-//       </div>
-//       <div>
-//         <input
-//           type="password"
-//           placeholder="Password"
-//           className="w-full p-3 bg-moviedb-gray text-white rounded focus:outline-none focus:ring-2 focus:ring-moviedb-red"
-//           {...register("password", { required: "Password is required!" })}
-//           disabled={loading}
-//         />
-//         {errors.password && (
-//           <p className="text-red-600 text-start">{errors.password.message}</p>
-//         )}
-//       </div>
-
-//       <button
-//         type="submit"
-//         className="w-full bg-moviedb-red text-white py-3 rounded hover:bg-red-700 transition duration-300"
-//         disabled={loading}
-//       >
-//         Sign In
-//       </button>
-//     </form>
-//   );
-// }
-
-// // // old
-
-// // export default function LoginForm() {
-// //   return (
-// //     <form id="loginForm" className="space-y-4" action={performLogin}>
-// //       <div>
-// //         <input
-// //           type="email"
-// //           placeholder="Email or phone number"
-// //           className="w-full p-3 bg-moviedb-gray text-white rounded focus:outline-none focus:ring-2 focus:ring-moviedb-red"
-// //           name="email"
-// //           required
-// //         />
-// //       </div>
-// //       <div>
-// //         <input
-// //           type="password"
-// //           placeholder="Password"
-// //           className="w-full p-3 bg-moviedb-gray text-white rounded focus:outline-none focus:ring-2 focus:ring-moviedb-red"
-// //           name="password"
-// //           required
-// //         />
-// //       </div>
-
-// //       <button
-// //         type="submit"
-// //         className="w-full bg-moviedb-red text-white py-3 rounded hover:bg-red-700 transition duration-300"
-// //       >
-// //         Sign In
-// //       </button>
-// //     </form>
-// //   );
-// // }
-
-// // // implementing new feature
-
 "use client";
-
 import { performLogin } from "@/actions";
-import useAuth from "@/hooks/useAuth";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { loginSchema } from "@/validation_schema/loginSchema";
+import { useForm } from "@conform-to/react";
+import { parseWithZod } from "@conform-to/zod";
+import { useSearchParams } from "next/navigation";
+import { useFormState } from "react-dom";
 
 export default function LoginForm() {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm();
-  const [loading, setLoading] = useState(false);
-  const { setAuth } = useAuth();
-
-  const submitHandler = async (formData) => {
-    setLoading(true);
-    try {
-      // Call the performLogin server action with form data and get the user
-      const user = await performLogin(formData);
-
-      if (user) {
-        // Set the user to the auth context
-        setAuth(user);
-      }
-    } catch (error) {
-      console.error("Login error:", error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const searchParams = useSearchParams();
+  const redirectPath = searchParams.get("redirect") || "/"; // Get redirect path or default to "/"
+  const [lastResult, action] = useFormState(performLogin, undefined);
+  const [form, fields] = useForm({
+    lastResult,
+    onValidate({ formData }) {
+      return parseWithZod(formData, {
+        schema: loginSchema,
+      });
+    },
+    shouldValidate: "onBlur",
+    shouldRevalidate: "onInput",
+  });
 
   return (
     <form
-      id="loginForm"
-      className="space-y-4"
-      onSubmit={handleSubmit(submitHandler)}
+      id={form.id}
+      className="space-y-4 loginForm"
+      onSubmit={form.onSubmit}
+      action={action}
     >
       <div>
         <input
           type="email"
           placeholder="Email or phone number"
           className="w-full p-3 bg-moviedb-gray text-white rounded focus:outline-none focus:ring-2 focus:ring-moviedb-red"
-          {...register("email", {
-            required: "Email is required!",
-          })}
-          disabled={loading}
+          key={fields.email.key}
+          name={fields.email.name}
+          defaultValue={fields.email.initialValue}
         />
-        {errors.password && (
-          <p className="text-red-600 text-start">{errors.password.message}</p>
+        {fields.email.errors && (
+          <p className="text-red-600 text-start">{fields.email.errors}</p>
         )}
       </div>
       <div>
@@ -164,18 +46,24 @@ export default function LoginForm() {
           type="password"
           placeholder="Password"
           className="w-full p-3 bg-moviedb-gray text-white rounded focus:outline-none focus:ring-2 focus:ring-moviedb-red"
-          {...register("password", { required: "Password is required!" })}
-          disabled={loading}
+          key={fields.password.key}
+          name={fields.password.name}
+          defaultValue={fields.password.initialValue}
         />
-        {errors.password && (
-          <p className="text-red-600 text-start">{errors.password.message}</p>
+        {fields.password.errors && (
+          <p className="text-red-600 text-start">{fields.password.errors}</p>
         )}
       </div>
+
+      <input type="text" name="path" value={redirectPath} hidden />
+
+      {lastResult?.status === "error" && lastResult?.message && (
+        <p className="text-red-600 text-start">{lastResult.message}</p>
+      )}
 
       <button
         type="submit"
         className="w-full bg-moviedb-red text-white py-3 rounded hover:bg-red-700 transition duration-300"
-        disabled={loading}
       >
         Sign In
       </button>
