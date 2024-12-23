@@ -1,8 +1,9 @@
-import { getSimilarMovies } from "@/utils/data-utils";
 import RelatedCard from "./RelatedCard";
 
-export default async function RelatedMovies({ movieId }) {
-  const similarMovies = await getSimilarMovies(movieId);
+export default async function RelatedMovies({ similarMoviesPromise }) {
+  // const similarMovies = await getSimilarMovies(movieId);
+  const similarMovies = await similarMoviesPromise;
+  // console.log(similarMovies);
 
   return (
     <div className="container mx-auto px-4 py-8">

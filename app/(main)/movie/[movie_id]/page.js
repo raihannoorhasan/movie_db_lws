@@ -1,23 +1,9 @@
+import Loader from "@/components/common/Loader";
 import MovieDetail from "@/components/detailsMovie/MovieDetail";
 import RelatedMovies from "@/components/detailsMovie/RelatedMovies";
-import { getMovieById } from "@/utils/data-utils";
+import { getMovieById, getSimilarMovies } from "@/utils/data-utils";
 import { notFound } from "next/navigation";
-
-// export async function generateMetadata({ params: { movie_id } }) {
-//   const movie = await getMovieById(movie_id);
-
-//   return {
-//     title: `${movie?.title} - MovieDB`,
-//     description: movie?.overview,
-//     openGraph: {
-//       title: `${movie?.title}`,
-//       description: movie?.overview,
-//       images: [`https://image.tmdb.org/t/p/original${movie?.poster_path}`],
-//     },
-//   };
-// }
-
-// Assuming you're using Next.js 14 App Router and `generateMetadata` is in the page file
+import { Suspense } from "react";
 
 export async function generateMetadata({ params: { movie_id } }) {
   const movie = await getMovieById(movie_id);
@@ -46,16 +32,35 @@ export async function generateMetadata({ params: { movie_id } }) {
   };
 }
 
+// export default async function MovieDetailPage({ params }) {
+//   const { movie_id } = params || {};
+
+//   const movie = await getMovieById(movie_id);
+//   if (!movie) notFound();
+
+//   return (
+//     <>
+//       <MovieDetail movie={movie} />
+//         <RelatedMovies movieId={movie_id} />
+//     </>
+//   );
+// }
+
 export default async function MovieDetailPage({ params }) {
   const { movie_id } = params || {};
 
-  const movie = await getMovieById(movie_id);
+  const moviePromise = getMovieById(movie_id);
+  const similarMoviesPromise = getSimilarMovies(movie_id);
+
+  const movie = await moviePromise;
   if (!movie) notFound();
 
   return (
     <>
       <MovieDetail movie={movie} />
-      <RelatedMovies movieId={movie_id} />
+      <Suspense fallback={<Loader />}>
+        <RelatedMovies similarMoviesPromise={similarMoviesPromise} />
+      </Suspense>
     </>
   );
 }
