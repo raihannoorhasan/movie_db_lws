@@ -55,11 +55,63 @@
 //   revalidateTag("slots");
 // }
 
+// "use server";
+
+// import { revalidateTag } from "next/cache";
+
+// // Persistent in-memory storage simulation
+// let slotCounter = 1;
+// let slots = [
+//   {
+//     id: `slot-${slotCounter++}`,
+//     movie: null,
+//   },
+// ];
+
+// // Fetch slots
+// export async function fetchSlots() {
+//   return slots;
+// }
+
+// // Add a slot
+// export async function addSlot() {
+//   slots.push({
+//     id: `slot-${slotCounter++}`,
+//     movie: null,
+//   });
+
+//   revalidateTag("slots");
+// }
+
+// // Remove a slot
+// export async function removeSlot(formData) {
+//   const slotId = formData.get("slotId");
+//   slots = slots.filter((slot) => slot.id !== slotId);
+
+//   revalidateTag("slots");
+// }
+
+// // Update a slot
+// export async function updateSlot(formData) {
+//   const slotId = formData.get("slotId");
+//   const movieData = JSON.parse(formData.get("movieData"));
+
+//   const slotIndex = slots.findIndex((slot) => slot.id === slotId);
+//   if (slotIndex !== -1) {
+//     slots[slotIndex].movie = movieData;
+//   } else {
+//     slots.push({ id: slotId, movie: movieData });
+//   }
+
+//   revalidateTag("slots");
+// }
+
+// new
+
 "use server";
 
 import { revalidateTag } from "next/cache";
 
-// Persistent in-memory storage simulation
 let slotCounter = 1;
 let slots = [
   {
@@ -68,30 +120,24 @@ let slots = [
   },
 ];
 
-// Fetch slots
 export async function fetchSlots() {
-  return slots;
+  return [...slots]; // Return a copy to prevent external mutation
 }
 
-// Add a slot
 export async function addSlot() {
   slots.push({
     id: `slot-${slotCounter++}`,
     movie: null,
   });
-
   revalidateTag("slots");
 }
 
-// Remove a slot
 export async function removeSlot(formData) {
   const slotId = formData.get("slotId");
   slots = slots.filter((slot) => slot.id !== slotId);
-
   revalidateTag("slots");
 }
 
-// Update a slot
 export async function updateSlot(formData) {
   const slotId = formData.get("slotId");
   const movieData = JSON.parse(formData.get("movieData"));
@@ -99,9 +145,30 @@ export async function updateSlot(formData) {
   const slotIndex = slots.findIndex((slot) => slot.id === slotId);
   if (slotIndex !== -1) {
     slots[slotIndex].movie = movieData;
-  } else {
-    slots.push({ id: slotId, movie: movieData });
   }
-
   revalidateTag("slots");
+}
+
+let modalData = [];
+
+// Fetch modal data
+export async function fetchModalData() {
+  return [...modalData]; // Return a copy to ensure immutability
+}
+
+export async function searchMovies(formData) {
+  const value = formData.get("searchValue");
+  if (!value.trim()) return;
+  try {
+    const res = await getMoviesByQuery(value); // Your API logic
+    modalData = res;
+    revalidateTag("modalData");
+  } catch (error) {
+    console.error("Error fetching movies:", error);
+  }
+}
+
+export async function closeSearchModal() {
+  modalData = [];
+  revalidateTag("modalData");
 }

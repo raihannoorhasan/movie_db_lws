@@ -7,10 +7,6 @@ export default async function RelatedCard({ movie }) {
     `https://image.tmdb.org/t/p/original${movie?.poster_path}`
   );
 
-  console.log(base64);
-
-  // console.log(movie?.poster_path);
-
   return (
     <div className="flex-shrink-0 w-48 cursor-pointer hover:scale-105 transition-transform">
       <Link href={`/movie/${movie?.id}`}>
